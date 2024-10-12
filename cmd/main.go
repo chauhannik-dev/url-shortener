@@ -18,6 +18,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	FAILED_TO_DECODE      = "failed_to_decode"
+	URL_MISSING           = "url_missing"
+	ONLY_URL_ALLOWED      = "only_url_allowed"
+	INVALID_URL_FORMAT    = "invalid_url_format"
+	ENCODED_URL_MISSING   = "encoded_url_missing"
+	SHORTENED_URL_MISSING = "shortened_url_missing"
+	ENCODED_URL_NOT_FOUND = "encoded_url_not_found"
+)
+
 type ShortenedRequestBody struct {
 	URL string `json:"url"`
 }
@@ -52,22 +62,22 @@ func validateRequest(r *http.Request) (string, string) {
 	err := json.NewDecoder(r.Body).Decode(&rawMessage)
 
 	if err != nil {
-		return "", "failed_to_decode"
+		return "", FAILED_TO_DECODE
 	}
 
 	if _, ok := rawMessage["url"]; !ok {
-		return "", "url_missing"
+		return "", FAILED_TO_DECODE
 	}
 
 	if len(rawMessage) > 1 {
-		return "", "only_url_allowed"
+		return "", ONLY_URL_ALLOWED
 	}
 
 	var reqBody ShortenedRequestBody
 	err = json.Unmarshal(rawMessage["url"], &reqBody.URL)
 
 	if err != nil || reqBody.URL == "" {
-		return "", "invalid_url_format"
+		return "", INVALID_URL_FORMAT
 	}
 
 	return reqBody.URL, ""
@@ -146,7 +156,7 @@ func redirectToURL(w http.ResponseWriter, r *http.Request, collection *mongo.Col
 	shortURL := r.URL.Path[1:]
 
 	if shortURL == "" {
-		http.Error(w, "encoded_url_missing", http.StatusBadRequest)
+		http.Error(w, ENCODED_URL_MISSING, http.StatusBadRequest)
 		return
 	}
 
@@ -171,7 +181,7 @@ func deleteURL(w http.ResponseWriter, r *http.Request, collection *mongo.Collect
 	key := r.URL.Path[1:]
 
 	if key == "" {
-		http.Error(w, "short_url_missing", http.StatusBadRequest)
+		http.Error(w, SHORTENED_URL_MISSING, http.StatusBadRequest)
 		return
 	}
 
@@ -184,7 +194,7 @@ func deleteURL(w http.ResponseWriter, r *http.Request, collection *mongo.Collect
 	}
 
 	if result.DeletedCount == 0 {
-		http.Error(w, "encoded_url_not_found", http.StatusNotFound)
+		http.Error(w, ENCODED_URL_NOT_FOUND, http.StatusNotFound)
 		return
 	}
 
