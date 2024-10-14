@@ -11,7 +11,7 @@ This project is a URL shortener service that allows users to shorten long URLs, 
 ### 1. Shorten a URL
 - **Endpoint**: `POST /`
 - **Request Body**: 
-  ```json
+  ```
   {
     "url": "https://www.example.com"
   }
@@ -19,7 +19,8 @@ This project is a URL shortener service that allows users to shorten long URLs, 
 Description: This endpoint takes a long URL and generates a shortened version using SHA-256 for hashing and Base 62 encoding. It handles collisions by generating a new hash if a collision occurs.
 
 - **Response**
-```{
+```
+{
     "key": "unique_hash",
     "short_url": "http://short.ly/unique_hash",
     "long_url": "https://www.example.com"
@@ -33,7 +34,8 @@ Description: This endpoint takes a long URL and generates a shortened version us
 Description: Deletes the shortened URL entry from the database.
 
 - **Response**:
-```{
+```
+{
     "message": "URL deleted successfully."
 }
 ```
