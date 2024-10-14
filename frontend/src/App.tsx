@@ -12,12 +12,12 @@ const App: React.FC = () => {
 
     try {
       const response = await axios.post('/api', {
-        url: url
+        url
       })
 
       setEncodedURL(response.data.short_url);
     } catch (error) {
-      console.log(error)
+      setError("Failed to fetch data: " + (error as Error).message);
     }
     
     setUrl('');
@@ -30,15 +30,26 @@ const App: React.FC = () => {
           <input
               type="text"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value); setError('')
+              }}
               placeholder="https://example.com"
               className='input-field'
               required
           />
           <br />
-          {encodedURL.length && <p className='text'>Encoded URL: {encodedURL}</p>}
-          {encodedURL.length && <button className='button' onClick={() => window.location.href = encodedURL}>Redirect to URL</button>}
-          {error.length && <p>Error: {error}</p>}
+          { encodedURL.length > 0 &&
+            <div className='paragraph'>
+              <p>Encoded URL: {encodedURL}</p>
+            </div>
+          }
+          
+          {
+            encodedURL.length && <button className='button' onClick={() => window.location.href = encodedURL}>Redirect to URL</button>
+          }
+          
+          {error && <div><p className='error'>{error}</p></div>}
+          
           <button type="submit" className='submit-button'>
               Submit
           </button>

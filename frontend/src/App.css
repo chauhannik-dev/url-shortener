@@ -66,3 +66,16 @@
   font-size: 16px;
   margin-bottom: 25px;
 }
+
+.paragraph {
+  background-color: #63c9f2;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 20px 0;
+  border-radius: 25px;
+  padding: 5px
+}
+
+.error {
+  color: red;
+}
