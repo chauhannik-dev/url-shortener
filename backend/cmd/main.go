@@ -9,10 +9,12 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 
 	"math/rand"
 
 	"github.com/catinello/base62"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -115,7 +117,7 @@ func shortenUrl(w http.ResponseWriter, r *http.Request, collection *mongo.Collec
 	var salt string = ""
 	for {
 		hashedKey := hashUrl(originalUrl, salt)
-		shortURL := fmt.Sprintf("http://short.ly/%s", hashedKey)
+		shortURL := fmt.Sprintf("http://localhost:8080/%s", hashedKey)
 
 		// check if the hash key is already present
 		filter := bson.M{"key": hashedKey}
@@ -204,7 +206,16 @@ func deleteURL(w http.ResponseWriter, r *http.Request, collection *mongo.Collect
 }
 
 func main() {
-	client, err := connectToMongo("mongodb+srv://cn2blue:cn2blue123@cluster0.80bge.mongodb.net/url_shortener?retryWrites=true&w=majority")
+	err := godotenv.Load()
+
+	dbHost := os.Getenv("MONGODB_URI")
+	dbName := os.Getenv("DB_NAME")
+	collectionName := os.Getenv("COLLECTION_NAME")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	client, err := connectToMongo(dbHost)
 
 	if err != nil {
 		log.Fatal("Couldn't connect to the database")
@@ -212,7 +223,7 @@ func main() {
 
 	defer client.Disconnect(context.TODO())
 
-	collection := client.Database("url_shortener").Collection("urls")
+	collection := client.Database(dbName).Collection(collectionName)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
