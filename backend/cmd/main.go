@@ -202,7 +202,12 @@ func deleteURL(w http.ResponseWriter, r *http.Request, collection *mongo.Collect
 
 	w.Header().Set("Content", "application/json")
 	w.WriteHeader(http.StatusNoContent)
-	json.NewEncoder(w).Encode(result)
+
+	response := map[string]string{
+		"message": "URL deleted successfully",
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func main() {
